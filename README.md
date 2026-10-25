@@ -4,7 +4,7 @@ Portfolio for **Director, Care Delivery Learning & Development** at Ro.
 
 Clinician (AuD, OD) and MBA with about 20 years in healthcare and MedTech, including 10+ years in training, enablement, and AI transformation. I build learning that changes what patient-facing teams do on the job, and the operating model that keeps a learning function running.
 
-**Live site:** https://sandiejotrina.github.io/ro/
+**Live site:** https://sandiejotrina.github.io/Ro/
 
 ## Work samples
 
