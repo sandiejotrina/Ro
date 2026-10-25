@@ -44,7 +44,7 @@
     <p class="eyebrow">Work sample · Complexity buster · Game</p>
     <h1>Shift Sim: GLP-1 patient contacts</h1>
     <p class="lede">You are a non-clinical Patient Care Advocate. Six patients reach out about their GLP-1 weight management medicine. Your job is not to be the clinician. It is to know exactly what you can handle, what goes to a clinician, and what can't wait.</p>
-    <p class="muted small">About 5 minutes. Two meters: <b>Safety</b> and <b>Patient Trust</b>. A safety miss always outweighs a warm answer.</p>
+    <p class="muted small">About 5 minutes. Six patients, one shift. Two meters: <b>Safety</b> and <b>Patient Trust</b>. Build a streak, earn five badges, and clear the shift with zero safety misses for a surprise. A safety miss always outweighs a warm answer.</p>
   </div>
 </section>
 
@@ -63,7 +63,7 @@
       <div class="card">
         <h3>Why it is built this way</h3>
         <ul class="tight">
-          <li><b>No leaderboard.</b> Ranking frontline staff on speed teaches the wrong thing in clinical work. Meters show the two things Ro cares about: safe care and an easy experience.</li>
+          <li><b>Fun, but no leaderboard.</b> Streaks and badges are private and reward good judgment. Ranking frontline staff on speed teaches the wrong thing in clinical work, so there is no timer and no public score.</li>
           <li><b>Safety outweighs warmth.</b> A kind answer that misses a red flag scores worse than a blunt answer that escalates.</li>
           <li><b>Wrong answers teach.</b> Every option has its own feedback, because the wrong choices are the ones real people make.</li>
           <li><b>Scope is the skill.</b> Half the scenarios test whether the advocate stays out of clinical decisions. One tests whether they notice the problem is actually a shipping problem.</li>
@@ -87,6 +87,7 @@
 
 <footer class="site"><div class="wrap"><a href="../">← Back to the portfolio</a></div></footer>
 
+<script src="../assets/fun.js"></script>
 <script>
 const SCENARIOS = [
   {
@@ -202,8 +203,25 @@ const SCENARIOS = [
   }
 ];
 
-let i = 0, safety = 0, trust = 0, max = 0, log = [];
+const PATIENTS = [
+  { name: "Maya R.", color: "#5b8def" },
+  { name: "Daniel K.", color: "#c2410c" },
+  { name: "Priya S.", color: "#7c3aed" },
+  { name: "James T.", color: "#0f766e" },
+  { name: "Linda M.", color: "#b45309" },
+  { name: "Chris P.", color: "#be185d" }
+];
+const BADGES = [
+  { icon: "\u{1F6A8}", name: "Red Flag Radar", desc: "Escalated every red flag fast", behavior: "Escalates red flags urgently" },
+  { icon: "\u{1F6E1}️", name: "Scope Guardian", desc: "Never made a dosing call", behavior: "Stays within scope on dosing" },
+  { icon: "\u{1F49A}", name: "Crisis Ready", desc: "Heard what the patient really said", behavior: "Follows the crisis protocol" },
+  { icon: "\u{1F527}", name: "Real Fixer", desc: "Solved what was yours to solve", behavior: "Resolves what is in scope" },
+  { icon: "\u{1F525}", name: "Hot Streak", desc: "Three best answers in a row", streak: 3 }
+];
+
+let i = 0, safety = 0, trust = 0, max = 0, streak = 0, bestStreak = 0, log = [];
 const stage = document.getElementById("stage");
+const game = document.getElementById("game");
 
 function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
 function shuffle(a) { const b = a.slice(); for (let k = b.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [b[k], b[j]] = [b[j], b[k]]; } return b; }
@@ -220,40 +238,55 @@ function render() {
   meters();
   stage.replaceChildren();
   if (i >= SCENARIOS.length) return finish();
-  const sc = SCENARIOS[i];
-  stage.append(el("div", "trail", "Contact " + (i + 1) + " of " + SCENARIOS.length + " · " + sc.title));
-  const p = el("div", "patient");
-  p.append(el("div", "who", sc.who), el("div", "said", "“" + sc.said + "”"));
-  stage.append(p, el("div", "q", "What do you do?"));
-  const opts = el("div", "opts");
-  const fb = el("div", "feedback");
-  shuffle(sc.options).forEach(o => {
-    const b = el("button", "opt", o.t);
-    b.type = "button";
-    b.onclick = () => choose(sc, o, b, opts, fb);
-    opts.append(b);
-  });
-  stage.append(opts, fb);
+  const sc = SCENARIOS[i], pt = PATIENTS[i];
+  const hud = el("div", "hud");
+  const clock = ["9:02 a.m.", "9:41 a.m.", "10:15 a.m.", "11:08 a.m.", "1:30 p.m.", "2:47 p.m."][i];
+  hud.append(el("span", null, "\u{1F552} " + clock + " · Contact " + (i + 1) + " of " + SCENARIOS.length));
+  hud.append(el("span", "chip" + (streak >= 2 ? " hot" : ""), streak >= 2 ? "\u{1F525} Streak " + streak : "Streak " + streak));
+  stage.append(hud);
+
+  const p = el("div", "patient fade-in");
+  const head = el("div", null); head.style.cssText = "display:flex;gap:12px;align-items:center;margin-bottom:8px";
+  const av = el("div", "avatar", pt.name.split(" ").map(w => w[0]).join("")); av.style.background = pt.color;
+  const meta = el("div"); meta.append(el("b", null, pt.name), el("div", "who", sc.who + " · " + sc.title));
+  head.append(av, meta);
+  const said = el("div", "said");
+  const dots = el("span", "typing"); dots.append(el("i"), el("i"), el("i"));
+  said.append(dots);
+  p.append(head, said);
+  stage.append(p);
+
+  setTimeout(() => {
+    said.textContent = "“" + sc.said + "”";
+    const q = el("div", "q fade-in", "What do you do?");
+    const opts = el("div", "opts fade-in");
+    const fb = el("div", "feedback");
+    shuffle(sc.options).forEach(o => {
+      const b = el("button", "opt", o.t); b.type = "button";
+      b.onclick = () => choose(sc, o, b, opts, fb);
+      opts.append(b);
+    });
+    stage.append(q, opts, fb);
+  }, FUN.calm ? 0 : 900);
 }
 
 function choose(sc, o, btn, opts, fb) {
   [...opts.children].forEach(b => b.disabled = true);
   btn.classList.add(o.v === "best" ? "right" : "wrong");
   safety += o.s; trust += o.r; max += 10;
+  if (o.v === "best") { streak++; bestStreak = Math.max(bestStreak, streak); } else streak = 0;
   log.push({ sc, o });
-  const label = o.critical ? "Safety-critical miss" : o.v === "best" ? "Best response" : o.v === "ok" ? "Safe, but not the best" : "Miss";
+  FUN.pop(btn, o.critical ? "⚠️ Safety miss" : "+" + o.s + " safety  +" + o.r + " trust", o.v === "best");
+  if (o.critical) FUN.shake(game);
+  const label = o.critical ? "⚠️ Safety-critical miss" : o.v === "best" ? (streak >= 3 ? "\u{1F525} Best response. " + streak + " in a row" : "✅ Best response") : o.v === "ok" ? "Safe, but not the best" : "Miss";
   fb.replaceChildren(
     el("div", "verdict " + (o.v === "best" ? "best" : o.critical || o.v === "miss" ? "miss" : "ok"), label),
     el("div", "small muted", "Behavior: " + o.behavior),
     el("p", null, o.fb)
   );
-  if (o.v !== "best") {
-    const best = sc.options.find(x => x.v === "best");
-    fb.append(el("p", "small", "Best response: " + best.t));
-  }
-  const next = el("button", "btn", i + 1 < SCENARIOS.length ? "Next contact" : "End of shift");
-  next.type = "button";
-  next.onclick = () => { i++; render(); };
+  if (o.v !== "best") fb.append(el("p", "small", "Best response: " + sc.options.find(x => x.v === "best").t));
+  const next = el("button", "btn", i + 1 < SCENARIOS.length ? "Next patient →" : "End of shift →"); next.type = "button";
+  next.onclick = () => { i++; render(); game.scrollIntoView({ behavior: FUN.calm ? "auto" : "smooth", block: "start" }); };
   fb.append(next);
   fb.classList.add("show");
   meters();
@@ -263,20 +296,35 @@ function finish() {
   const crit = log.filter(x => x.o.critical);
   const sPct = Math.round(safety / max * 100), tPct = Math.round(trust / max * 100);
   const ready = crit.length === 0 && sPct >= 90;
-  stage.append(el("div", "eyebrow", "End of shift"));
-  stage.append(el("h2", null, ready ? "Ready for live contacts" : "Coaching recommended before live contacts"));
-  stage.append(el("p", null, "Safety " + sPct + "%. Patient Trust " + tPct + "%. Safety-critical misses: " + crit.length + "."));
+  stage.append(el("div", "eyebrow", "\u{1F3C1} End of shift"));
+  stage.append(el("h2", null, ready ? "Ready for live patients" : "Coaching first, then a replay"));
+  stage.append(el("p", null, "Safety " + sPct + "%. Patient Trust " + tPct + "%. Safety-critical misses: " + crit.length + ". Best streak: " + bestStreak + "."));
+
+  const earned = BADGES.map(b => {
+    if (b.streak) return bestStreak >= b.streak;
+    const hits = log.filter(x => x.sc.options.some(o => o.v === "best" && o.behavior === b.behavior));
+    return hits.length > 0 && hits.every(x => x.o.v === "best");
+  });
+  stage.append(el("h3", null, "Badges: " + earned.filter(Boolean).length + " of " + BADGES.length));
+  const grid = el("div", "badges");
+  BADGES.forEach((b, k) => {
+    const card = el("div", "badge " + (earned[k] ? "earned" : "locked"));
+    card.append(el("div", "icon", b.icon), el("b", null, b.name), el("span", null, b.desc));
+    grid.append(card);
+  });
+  stage.append(grid);
+
   stage.append(el("p", "muted small", ready
-    ? "In a real rollout this result unlocks supervised live contacts, and the same behaviors get checked in QA over the next 30 days."
-    : "In a real rollout this result routes to a 15-minute coaching session on the behaviors below, then a replay with fresh scenarios. No public score, no ranking."));
+    ? "In a real rollout this unlocks supervised live contacts, and QA checks the same behaviors over the next 30 days."
+    : "In a real rollout this routes to a 15-minute coaching chat on the behaviors below, then a replay with fresh patients. Badges are private. Nobody is ranked."));
 
   const wrap = el("div", "table-scroll");
   const t = el("table");
-  const hr = el("tr"); ["Contact", "Behavior", "Result"].forEach(h => hr.append(el("th", null, h))); t.append(hr);
-  log.forEach(x => {
+  const hr = el("tr"); ["Patient", "Behavior", "Result"].forEach(h => hr.append(el("th", null, h))); t.append(hr);
+  log.forEach((x, k) => {
     const r = el("tr");
-    r.append(el("td", null, x.sc.title), el("td", null, x.o.behavior),
-      el("td", null, x.o.critical ? "Safety-critical miss" : x.o.v === "best" ? "Best" : "Needs work"));
+    r.append(el("td", null, PATIENTS[k].name + ": " + x.sc.title), el("td", null, x.o.behavior),
+      el("td", null, x.o.critical ? "⚠️ Safety-critical miss" : x.o.v === "best" ? "✅ Best" : "Needs work"));
     t.append(r);
   });
   wrap.append(t); stage.append(wrap);
@@ -290,17 +338,19 @@ function finish() {
       extensions: { "https://example.com/xapi/qa-behavior": last.o.behavior, "https://example.com/xapi/safety-critical-miss": !!last.o.critical } },
     context: { extensions: { "https://example.com/xapi/role": "Patient Care Advocate", "https://example.com/xapi/program": "Weight management" } }
   };
-  stage.append(el("h3", null, "The learning record behind your last choice"));
-  stage.append(el("p", "muted small", "This is the xAPI statement a learning record store would receive. Because it carries the QA behavior tag, it can be joined to QA scores for the same behavior later."));
-  stage.append(el("pre", null, JSON.stringify(stmt, null, 2)));
+  const det = el("details"); det.style.marginTop = "18px";
+  det.append(el("summary", null, "For the data people: the learning record behind your last choice"));
+  det.append(el("p", "muted small", "This is the xAPI statement a learning record store would receive. Because it carries the QA behavior tag, it can be joined to QA scores for the same behavior later."));
+  det.append(el("pre", null, JSON.stringify(stmt, null, 2)));
+  stage.append(det);
 
-  const again = el("button", "btn", "Play again");
-  again.type = "button";
-  again.onclick = () => { i = 0; safety = 0; trust = 0; max = 0; log = []; render(); };
+  const again = el("button", "btn", "\u{1F501} Play again with new answer order"); again.type = "button";
+  again.onclick = () => { i = 0; safety = 0; trust = 0; max = 0; streak = 0; bestStreak = 0; log = []; render(); };
   const row = el("div", "btn-row");
   const back = el("a", "btn ghost", "Back to the portfolio"); back.href = "../";
   row.append(again, back);
   stage.append(row);
+  if (ready) FUN.confetti();
 }
 
 render();

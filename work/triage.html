@@ -36,7 +36,7 @@
   <div class="wrap">
     <p class="eyebrow">Work sample · Performance consulting · Game</p>
     <h1>Is training the answer?</h1>
-    <p class="lede">Five requests land in the Learning CoE's intake queue. Each comes with one thing you'd find if you dug in. Pick the fix. Training is right only some of the time.</p>
+    <p class="lede">Five tickets land in the Learning CoE's intake queue. You can pick a fix right away, or dig in first and see what the data says. Right answers score 2, digging scores 1, and there are three badges to earn. Training is right only some of the time.</p>
     <p class="muted small">The test behind every answer: could they do it if their job depended on it? If yes, it isn't a skill gap, so training won't fix it.</p>
   </div>
 </section>
@@ -70,6 +70,7 @@
 
 <footer class="site"><div class="wrap"><a href="../">← Back to the portfolio</a></div></footer>
 
+<script src="../assets/fun.js"></script>
 <script>
 const FIXES = ["Training", "Job aid", "Knowledge fix", "Process or tool fix", "Coaching"];
 const REQUESTS = [
@@ -110,8 +111,10 @@ const REQUESTS = [
   }
 ];
 
-let i = 0, right = 0;
+let i = 0, points = 0, right = 0, dugAll = true, trainingMisused = false, launchRight = false;
 const stage = document.getElementById("stage");
+const tool = stage.parentElement;
+const PRIORITY = ["High", "High", "Urgent", "Medium", "Medium"];
 function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
 
 function render() {
@@ -119,21 +122,45 @@ function render() {
   stage.replaceChildren();
   if (i >= REQUESTS.length) return finish();
   const r = REQUESTS[i];
-  stage.append(el("div", "trail", "Request " + (i + 1) + " of " + REQUESTS.length));
-  const box = el("div", "req");
-  box.append(el("div", "from", "From: " + r.from), el("div", "ask", "“" + r.ask + "”"));
-  const clue = el("div", "clue"); clue.append(el("b", null, "When you dig in: "), document.createTextNode(r.clue));
-  stage.append(box, clue, el("div", "q", "What is the fix?"));
+  let dug = false;
+  const hud = el("div", "hud");
+  hud.append(el("span", null, "\u{1F4E5} Ticket " + (i + 1) + " of " + REQUESTS.length), el("span", "chip", "\u{1F50E} " + points + " detective points"));
+  stage.append(hud);
+  const box = el("div", "req fade-in");
+  const top = el("div", "from"); top.append(document.createTextNode("From: " + r.from + " "), el("span", "tag " + (PRIORITY[i] === "Urgent" ? "warn" : "amber"), PRIORITY[i]));
+  box.append(top, el("div", "ask", "“" + r.ask + "”"));
+  stage.append(box);
+
+  const digRow = el("div", "btn-row"); digRow.style.margin = "0 0 16px";
+  const digBtn = el("button", "btn ghost", "\u{1F50D} Dig in first (+1 point)"); digBtn.type = "button";
+  digRow.append(digBtn, el("span", "muted small", "Or trust your gut and pick now."));
+  digRow.lastChild.style.alignSelf = "center";
+  stage.append(digRow);
+  const clue = el("div", "clue fade-in"); clue.hidden = true;
+  clue.append(el("b", null, "What you find: "), document.createTextNode(r.clue));
+  stage.append(clue);
+  digBtn.onclick = () => { dug = true; clue.hidden = false; digRow.remove(); FUN.pop(clue, "+1 for asking", true); };
+
+  stage.append(el("div", "q", "What is the fix?"));
   const opts = el("div", "opts five");
   const fb = el("div", "feedback");
   FIXES.forEach(f => {
     const b = el("button", "opt", f); b.type = "button";
     b.onclick = () => {
       [...opts.children].forEach(x => { x.disabled = true; if (x.textContent === r.answer) x.classList.add("right"); });
+      digRow.remove(); clue.hidden = false;
       const ok = f === r.answer;
-      if (ok) right++; else b.classList.add("wrong");
-      fb.replaceChildren(el("div", "verdict " + (ok ? "best" : "miss"), ok ? "Right: " + r.answer : "Not quite. It's " + r.answer.toLowerCase() + "."), el("p", null, r.why));
-      const next = el("button", "btn", i + 1 < REQUESTS.length ? "Next request" : "See results"); next.type = "button";
+      const gain = (ok ? 2 : 0) + (dug ? 1 : 0);
+      points += gain; if (ok) right++; if (!dug) dugAll = false;
+      if (f === "Training" && r.answer !== "Training") trainingMisused = true;
+      if (ok && r.answer === "Training") launchRight = true;
+      if (!ok) { b.classList.add("wrong"); FUN.shake(tool); }
+      FUN.pop(b, gain ? "+" + gain : "0", ok);
+      const head = ok ? (dug ? "✅ Right, and you checked first" : "✅ Right, but that was a guess") : (dug ? "Not quite. It's " + r.answer.toLowerCase() + "." : "\u{1F648} You prescribed before you diagnosed");
+      fb.replaceChildren(el("div", "verdict " + (ok ? "best" : "miss"), head));
+      if (!dug) fb.append(el("p", "small muted", "The clue above is what 20 minutes with the requester and the QA data would have told you. In the real queue, nobody builds anything until that step is done."));
+      fb.append(el("p", null, r.why));
+      const next = el("button", "btn", i + 1 < REQUESTS.length ? "Next ticket →" : "Clear the queue →"); next.type = "button";
       next.onclick = () => { i++; render(); };
       fb.append(next); fb.classList.add("show");
     };
@@ -143,14 +170,26 @@ function render() {
 }
 
 function finish() {
-  stage.append(el("div", "eyebrow", "Queue cleared"));
-  stage.append(el("h2", null, right + " of " + REQUESTS.length + " right"));
+  const maxPts = REQUESTS.length * 3;
+  const detective = dugAll && right >= 4;
+  stage.append(el("div", "eyebrow", "\u{1F389} Queue cleared"));
+  stage.append(el("h2", null, right + " of " + REQUESTS.length + " right · " + points + " of " + maxPts + " detective points"));
+  const grid = el("div", "badges");
+  [[detective, "\u{1F575}️", "Root Cause Detective", "Dug in every time and got 4+ right"],
+   [right === REQUESTS.length, "\u{1F3AF}", "Right Fix, Every Time", "5 of 5 correct"],
+   [launchRight && !trainingMisused, "\u{1F393}", "Training When It Counts", "Used training only where it fit"]]
+   .forEach(([on, icon, name, desc]) => {
+     const c = el("div", "badge " + (on ? "earned" : "locked"));
+     c.append(el("div", "icon", icon), el("b", null, name), el("span", null, desc)); grid.append(c);
+   });
+  stage.append(grid);
   stage.append(el("p", null, "Only one of the five requests was a training problem. Many requests that arrive as “we need a course” turn out to be a knowledge, tool, or feedback problem."));
-  stage.append(el("p", "muted", "In the CoE, this triage is the first step after intake. It takes 20 minutes with the requester and data from Quality and Operations, and it saves weeks of building the wrong thing."));
+  stage.append(el("p", "muted", "In the CoE, digging in is a required step after intake: 20 minutes with the requester plus data from Quality and Operations. It saves weeks of building the wrong thing."));
   const row = el("div", "btn-row");
-  const again = el("button", "btn", "Play again"); again.type = "button"; again.onclick = () => { i = 0; right = 0; render(); };
+  const again = el("button", "btn", "\u{1F501} Play again"); again.type = "button"; again.onclick = () => { i = 0; points = 0; right = 0; dugAll = true; trainingMisused = false; launchRight = false; render(); };
   const model = el("a", "btn ghost", "See the operating model"); model.href = "operating-model.html";
   row.append(again, model); stage.append(row);
+  if (detective) FUN.confetti();
 }
 render();
 </script>
