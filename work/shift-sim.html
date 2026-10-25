@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shift Sim: GLP-1 Calls</title>
+<meta name="description" content="A scenario-based practice game for non-clinical patient care team members handling GLP-1 patient contacts. Safety outweighs speed.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  .meters { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+  .meter label { font-size: 13px; font-weight: 700; color: var(--muted); display: flex; justify-content: space-between; }
+  .meter .bar { height: 10px; background: var(--line); border-radius: 99px; overflow: hidden; margin-top: 4px; }
+  .meter .bar > div { height: 100%; width: 0; transition: width .3s; }
+  #safetyBar { background: var(--accent); }
+  #trustBar { background: var(--amber); }
+  .patient { background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  .patient .who { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  .patient .said { font-size: 18px; font-style: italic; }
+  pre { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 14px; overflow-x: auto; font-size: 13px; }
+  .verdict { font-weight: 700; margin-bottom: 6px; }
+  .verdict.best { color: var(--accent); }
+  .verdict.ok { color: var(--amber); }
+  .verdict.miss { color: var(--warn); }
+  @media (max-width: 480px) { .meters { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="../">Sandie Dela Cruz, AuD, OD, MBA</a>
+    <nav>
+      <a href="shift-sim.html">Shift Sim</a>
+      <a href="triage.html">Triage</a>
+      <a href="operating-model.html">Operating model</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="hero" style="padding-bottom:32px">
+  <div class="wrap">
+    <p class="eyebrow">Work sample · Complexity buster · Game</p>
+    <h1>Shift Sim: GLP-1 patient contacts</h1>
+    <p class="lede">You are a non-clinical Patient Care Advocate. Six patients reach out about their GLP-1 weight management medicine. Your job is not to be the clinician. It is to know exactly what you can handle, what goes to a clinician, and what can't wait.</p>
+    <p class="muted small">About 5 minutes. Two meters: <b>Safety</b> and <b>Patient Trust</b>. A safety miss always outweighs a warm answer.</p>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="tool" id="game">
+      <div class="progress"><div id="prog"></div></div>
+      <div class="meters">
+        <div class="meter"><label><span>Safety</span><span id="safetyTxt">0 / 0</span></label><div class="bar"><div id="safetyBar"></div></div></div>
+        <div class="meter"><label><span>Patient Trust</span><span id="trustTxt">0 / 0</span></label><div class="bar"><div id="trustBar"></div></div></div>
+      </div>
+      <div id="stage"></div>
+    </div>
+
+    <div class="grid g2" style="margin-top:40px">
+      <div class="card">
+        <h3>Why it is built this way</h3>
+        <ul class="tight">
+          <li><b>No leaderboard.</b> Ranking frontline staff on speed teaches the wrong thing in clinical work. Meters show the two things Ro cares about: safe care and an easy experience.</li>
+          <li><b>Safety outweighs warmth.</b> A kind answer that misses a red flag scores worse than a blunt answer that escalates.</li>
+          <li><b>Wrong answers teach.</b> Every option has its own feedback, because the wrong choices are the ones real people make.</li>
+          <li><b>Scope is the skill.</b> Half the scenarios test whether the advocate stays out of clinical decisions. One tests whether they notice the problem is actually a shipping problem.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>How it connects to performance</h3>
+        <ul class="tight">
+          <li>Each choice is tagged with a behavior from the QA rubric, such as "escalates red flags urgently."</li>
+          <li>Each choice sends a learning record (xAPI). You'll see one at the end.</li>
+          <li>Thirty days later, compare sim results with QA scores and escalation accuracy for the same behaviors. That is the test of whether the learning worked.</li>
+          <li>New scenarios come from real QA misses and are refreshed every quarter, with clinical sign-off.</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="disclaimer">Sample content for a portfolio. Clinical points are drawn from public FDA labeling for GLP-1 medicines and simplified for a non-clinical audience. This is not Ro's clinical protocol or escalation policy, and a real version would be written with and approved by Ro's clinical team. If you are a patient with a medical question, contact your clinician. In an emergency call 911. For a mental health crisis call or text 988.</p>
+  </div>
+</section>
+</main>
+
+<footer class="site"><div class="wrap"><a href="../">← Back to the portfolio</a></div></footer>
+
+<script>
+const SCENARIOS = [
+  {
+    id: "mild-nausea",
+    title: "Week two, feeling queasy",
+    who: "Message from a patient, 12 days after starting",
+    said: "I've been kind of nauseous since I started. Is that normal? I'm still eating, just less.",
+    options: [
+      { t: "Say it's common early on, then check: is it mild, and are they keeping food and fluids down? Share the approved tips article and offer to send a note to their clinician.",
+        s: 10, r: 10, v: "best", behavior: "Checks for red flags before reassuring",
+        fb: "Right. Nausea is one of the most common side effects, especially when starting or changing dose. Reassurance is fine once you've ruled out the red flags: can't keep fluids down, severe or ongoing pain, signs of dehydration. The tips article is pre-approved, so you're not giving medical advice." },
+      { t: "Suggest they skip this week's dose and see if it settles.",
+        s: 0, r: 4, v: "miss", critical: true, behavior: "Stays within scope on dosing",
+        fb: "Safety-critical miss. Any change to dosing is a clinical decision, even one that sounds cautious. The advocate's job is to route it, not to make it." },
+      { t: "Tell them nausea is normal and nothing to worry about.",
+        s: 4, r: 6, v: "ok", behavior: "Checks for red flags before reassuring",
+        fb: "Kind, but you reassured without checking anything. Most of the time it is mild. The skill is confirming that before you say so." },
+      { t: "Tell them you'll pass it to their clinician and close the conversation.",
+        s: 10, r: 4, v: "ok", behavior: "Resolves what is in scope",
+        fb: "Safe, but the patient waits hours for an answer you could have given from an approved article. Escalating everything overloads clinicians and slows down care." }
+    ]
+  },
+  {
+    id: "severe-abdominal-pain",
+    title: "Pain that won't let up",
+    who: "Chat from a patient on month three",
+    said: "I've had really bad stomach pain since last night. It goes through to my back and I keep throwing up.",
+    options: [
+      { t: "Tell them this needs medical attention now. If the pain is severe, go to the ER or call 911. Then alert the on-call clinician using the urgent pathway and document it.",
+        s: 10, r: 10, v: "best", behavior: "Escalates red flags urgently",
+        fb: "Right. Severe abdominal pain that won't go away, sometimes reaching the back, with or without vomiting, is a warning sign on GLP-1 labeling (for example, pancreatitis). You don't need to know what it is. You need to move fast." },
+      { t: "Send a routine message to their clinician. They usually reply within a day.",
+        s: 0, r: 4, v: "miss", critical: true, behavior: "Escalates red flags urgently",
+        fb: "Safety-critical miss. The right person, but the wrong speed. A red flag goes through the urgent pathway, not the inbox." },
+      { t: "Suggest an antacid and small sips of water, and ask them to update you tomorrow.",
+        s: 0, r: 2, v: "miss", critical: true, behavior: "Escalates red flags urgently",
+        fb: "Safety-critical miss. This treats a red flag as an ordinary side effect and delays care by a day." },
+      { t: "Ask them to rate the pain from 1 to 10 and call back if it gets worse.",
+        s: 0, r: 3, v: "miss", critical: true, behavior: "Escalates red flags urgently",
+        fb: "Safety-critical miss. Severe, persistent pain with vomiting already meets the bar. Gathering more detail first just delays the escalation." }
+    ]
+  },
+  {
+    id: "dose-increase-request",
+    title: "Results slowed down",
+    who: "Message from a patient on month four",
+    said: "My weight loss has stalled. Can you bump me up to the next dose now instead of waiting?",
+    options: [
+      { t: "Acknowledge how frustrating a plateau feels. Explain that dose changes are their clinician's call, and send the request with their recent progress and any side effects noted.",
+        s: 10, r: 10, v: "best", behavior: "Stays within scope on dosing",
+        fb: "Right. You validated the patient, stayed in scope, and gave the clinician what they need to decide quickly. That last part is what makes care feel easy." },
+      { t: "Say yes and put in for the next dose.",
+        s: 2, r: 6, v: "miss", behavior: "Stays within scope on dosing",
+        fb: "Out of scope. You made a promise only a clinician can keep. If the clinician says no, the patient's trust drops further than if you'd routed it honestly." },
+      { t: "Tell them plateaus are normal and they should stick with their current dose.",
+        s: 5, r: 3, v: "ok", behavior: "Stays within scope on dosing",
+        fb: "You answered a clinical question yourself, and it came across as dismissive. Plateaus are common, but whether to change the dose is not your call." }
+    ]
+  },
+  {
+    id: "low-mood",
+    title: "Something else in the message",
+    who: "Call with a patient about a billing question",
+    said: "Sorry, I'm a mess. I've been feeling really low lately. Some days I don't see the point of anything.",
+    options: [
+      { t: "Slow down. Ask directly whether they are thinking about harming themselves. Follow the crisis protocol: 911 if they are in immediate danger, share 988, and do a warm handoff to the on-call clinician while staying on the line.",
+        s: 10, r: 10, v: "best", behavior: "Follows the crisis protocol",
+        fb: "Right. Asking directly does not plant the idea, and it is the fastest way to know how urgent this is. Some weight management GLP-1 labels also tell patients to watch for depression or thoughts of self-harm. Whatever the cause, the protocol is the same." },
+      { t: "Say you're sorry to hear that, then ask if there's anything else you can help with today.",
+        s: 0, r: 3, v: "miss", critical: true, behavior: "Follows the crisis protocol",
+        fb: "Safety-critical miss. This is the most common real-world miss: the patient said something serious and the call moved on. The billing question can wait." },
+      { t: "Say it might be the medication and you'll note it for their clinician.",
+        s: 3, r: 5, v: "miss", critical: true, behavior: "Follows the crisis protocol",
+        fb: "Safety-critical miss. You noticed it, which is good, but a note in the chart doesn't tell anyone how urgent it is. This needs a direct question and the crisis protocol now." }
+    ]
+  },
+  {
+    id: "vision-change",
+    title: "Blurry vision",
+    who: "Message from a patient with type 2 diabetes",
+    said: "Weird question, but my vision has been blurry for the past week. Could that be related?",
+    options: [
+      { t: "Take it seriously. Flag it to their clinician the same day as a vision change in a patient with diabetes. Tell them to get urgent care if they have sudden vision loss.",
+        s: 10, r: 10, v: "best", behavior: "Escalates red flags urgently",
+        fb: "Right. Semaglutide labeling warns about diabetic retinopathy complications in patients with diabetes, and fast changes in blood sugar can blur vision for a while. A clinician sorts out which. A note from the optometrist who wrote this: vision changes in a patient with diabetes always get a clinician's eyes, never a guess." },
+      { t: "Tell them it's probably screen time and to rest their eyes.",
+        s: 0, r: 4, v: "miss", critical: true, behavior: "Escalates red flags urgently",
+        fb: "Safety-critical miss. You diagnosed a symptom, and you got it wrong for this patient. In someone with diabetes on this medicine, vision changes go to a clinician." },
+      { t: "Tell them vision isn't related to this medicine but they should see an eye doctor.",
+        s: 5, r: 5, v: "ok", behavior: "Escalates red flags urgently",
+        fb: "Half right. An eye exam may well be needed, but the claim that it's unrelated is wrong, and their prescribing clinician doesn't find out. Route it to the clinician first." }
+    ]
+  },
+  {
+    id: "shipping-delay",
+    title: "The refill is late",
+    who: "Chat from a patient on month two",
+    said: "My refill is delayed and I'm going to miss Thursday's shot. Can I just take two next week to catch up?",
+    options: [
+      { t: "Own the shipping problem: check the order, expedite it, and give a delivery date. Tell them not to double up unless their clinician says so, and send the dosing question to the clinician.",
+        s: 10, r: 10, v: "best", behavior: "Resolves what is in scope",
+        fb: "Right. The real problem is logistics, and that one is yours to fix. The dosing question goes to the clinician. Fixing both is what an easy experience looks like." },
+      { t: "Tell them doubling up next week is fine.",
+        s: 0, r: 5, v: "miss", critical: true, behavior: "Stays within scope on dosing",
+        fb: "Safety-critical miss. Doubling a dose can make side effects much worse. This is a clinical question, and the answer is not yes." },
+      { t: "Send the dosing question to their clinician.",
+        s: 10, r: 4, v: "ok", behavior: "Resolves what is in scope",
+        fb: "Safe, but the patient still has no medicine. You treated a shipping problem as a clinical one. Not every problem is clinical, and that is a training lesson too." },
+      { t: "Tell them shipping is handled by another team and give them the number.",
+        s: 4, r: 2, v: "miss", behavior: "Resolves what is in scope",
+        fb: "You handed off the problem you could have solved and ignored the dosing risk. Two misses in one reply." }
+    ]
+  }
+];
+
+let i = 0, safety = 0, trust = 0, max = 0, log = [];
+const stage = document.getElementById("stage");
+
+function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+function shuffle(a) { const b = a.slice(); for (let k = b.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [b[k], b[j]] = [b[j], b[k]]; } return b; }
+
+function meters() {
+  document.getElementById("safetyTxt").textContent = safety + " / " + max;
+  document.getElementById("trustTxt").textContent = trust + " / " + max;
+  document.getElementById("safetyBar").style.width = max ? (safety / max * 100) + "%" : "0";
+  document.getElementById("trustBar").style.width = max ? (trust / max * 100) + "%" : "0";
+  document.getElementById("prog").style.width = (i / SCENARIOS.length * 100) + "%";
+}
+
+function render() {
+  meters();
+  stage.replaceChildren();
+  if (i >= SCENARIOS.length) return finish();
+  const sc = SCENARIOS[i];
+  stage.append(el("div", "trail", "Contact " + (i + 1) + " of " + SCENARIOS.length + " · " + sc.title));
+  const p = el("div", "patient");
+  p.append(el("div", "who", sc.who), el("div", "said", "“" + sc.said + "”"));
+  stage.append(p, el("div", "q", "What do you do?"));
+  const opts = el("div", "opts");
+  const fb = el("div", "feedback");
+  shuffle(sc.options).forEach(o => {
+    const b = el("button", "opt", o.t);
+    b.type = "button";
+    b.onclick = () => choose(sc, o, b, opts, fb);
+    opts.append(b);
+  });
+  stage.append(opts, fb);
+}
+
+function choose(sc, o, btn, opts, fb) {
+  [...opts.children].forEach(b => b.disabled = true);
+  btn.classList.add(o.v === "best" ? "right" : "wrong");
+  safety += o.s; trust += o.r; max += 10;
+  log.push({ sc, o });
+  const label = o.critical ? "Safety-critical miss" : o.v === "best" ? "Best response" : o.v === "ok" ? "Safe, but not the best" : "Miss";
+  fb.replaceChildren(
+    el("div", "verdict " + (o.v === "best" ? "best" : o.critical || o.v === "miss" ? "miss" : "ok"), label),
+    el("div", "small muted", "Behavior: " + o.behavior),
+    el("p", null, o.fb)
+  );
+  if (o.v !== "best") {
+    const best = sc.options.find(x => x.v === "best");
+    fb.append(el("p", "small", "Best response: " + best.t));
+  }
+  const next = el("button", "btn", i + 1 < SCENARIOS.length ? "Next contact" : "End of shift");
+  next.type = "button";
+  next.onclick = () => { i++; render(); };
+  fb.append(next);
+  fb.classList.add("show");
+  meters();
+}
+
+function finish() {
+  const crit = log.filter(x => x.o.critical);
+  const sPct = Math.round(safety / max * 100), tPct = Math.round(trust / max * 100);
+  const ready = crit.length === 0 && sPct >= 90;
+  stage.append(el("div", "eyebrow", "End of shift"));
+  stage.append(el("h2", null, ready ? "Ready for live contacts" : "Coaching recommended before live contacts"));
+  stage.append(el("p", null, "Safety " + sPct + "%. Patient Trust " + tPct + "%. Safety-critical misses: " + crit.length + "."));
+  stage.append(el("p", "muted small", ready
+    ? "In a real rollout this result unlocks supervised live contacts, and the same behaviors get checked in QA over the next 30 days."
+    : "In a real rollout this result routes to a 15-minute coaching session on the behaviors below, then a replay with fresh scenarios. No public score, no ranking."));
+
+  const wrap = el("div", "table-scroll");
+  const t = el("table");
+  const hr = el("tr"); ["Contact", "Behavior", "Result"].forEach(h => hr.append(el("th", null, h))); t.append(hr);
+  log.forEach(x => {
+    const r = el("tr");
+    r.append(el("td", null, x.sc.title), el("td", null, x.o.behavior),
+      el("td", null, x.o.critical ? "Safety-critical miss" : x.o.v === "best" ? "Best" : "Needs work"));
+    t.append(r);
+  });
+  wrap.append(t); stage.append(wrap);
+
+  const last = log[log.length - 1];
+  const stmt = {
+    actor: { name: "Learner", mbox: "mailto:learner@example.com" },
+    verb: { id: "http://adlnet.gov/expapi/verbs/answered", display: { "en-US": "answered" } },
+    object: { id: "https://example.com/shift-sim/glp1/" + last.sc.id, definition: { name: { "en-US": last.sc.title } } },
+    result: { success: last.o.v === "best", score: { scaled: last.o.s / 10 },
+      extensions: { "https://example.com/xapi/qa-behavior": last.o.behavior, "https://example.com/xapi/safety-critical-miss": !!last.o.critical } },
+    context: { extensions: { "https://example.com/xapi/role": "Patient Care Advocate", "https://example.com/xapi/program": "Weight management" } }
+  };
+  stage.append(el("h3", null, "The learning record behind your last choice"));
+  stage.append(el("p", "muted small", "This is the xAPI statement a learning record store would receive. Because it carries the QA behavior tag, it can be joined to QA scores for the same behavior later."));
+  stage.append(el("pre", null, JSON.stringify(stmt, null, 2)));
+
+  const again = el("button", "btn", "Play again");
+  again.type = "button";
+  again.onclick = () => { i = 0; safety = 0; trust = 0; max = 0; log = []; render(); };
+  const row = el("div", "btn-row");
+  const back = el("a", "btn ghost", "Back to the portfolio"); back.href = "../";
+  row.append(again, back);
+  stage.append(row);
+}
+
+render();
+</script>
+</body>
+</html>

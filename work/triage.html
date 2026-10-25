@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Is Training the Answer?</title>
+<meta name="description" content="A triage game for learning requests in a patient-facing care team. Decide whether each request needs training, a job aid, a knowledge fix, a process or tool fix, or coaching.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  .req { background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+  .req .from { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  .req .ask { font-size: 18px; font-style: italic; }
+  .clue { border-left: 3px solid var(--amber); padding: 8px 14px; margin: 0 0 16px; background: var(--amber-soft); border-radius: 0 10px 10px 0; font-size: 15px; }
+  .opts.five { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+  .verdict { font-weight: 700; margin-bottom: 6px; }
+  .verdict.best { color: var(--accent); }
+  .verdict.miss { color: var(--warn); }
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="../">Sandie Dela Cruz, AuD, OD, MBA</a>
+    <nav>
+      <a href="shift-sim.html">Shift Sim</a>
+      <a href="triage.html">Triage</a>
+      <a href="operating-model.html">Operating model</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="hero" style="padding-bottom:32px">
+  <div class="wrap">
+    <p class="eyebrow">Work sample · Performance consulting · Game</p>
+    <h1>Is training the answer?</h1>
+    <p class="lede">Five requests land in the Learning CoE's intake queue. Each comes with one thing you'd find if you dug in. Pick the fix. Training is right only some of the time.</p>
+    <p class="muted small">The test behind every answer: could they do it if their job depended on it? If yes, it isn't a skill gap, so training won't fix it.</p>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="tool">
+      <div class="progress"><div id="prog"></div></div>
+      <div id="stage"></div>
+    </div>
+
+    <div class="grid g2" style="margin-top:40px">
+      <div class="card">
+        <h3>The five fixes</h3>
+        <ul class="tight">
+          <li><b>Training</b>: new knowledge or skill that people need to perform without looking it up.</li>
+          <li><b>Job aid</b>: steps people know but do rarely, or in a strict order.</li>
+          <li><b>Knowledge fix</b>: the source of truth is wrong, missing, or contradicts itself.</li>
+          <li><b>Process or tool fix</b>: people know what to do, and the system makes it hard.</li>
+          <li><b>Coaching</b>: a few people, a clear standard, and missing feedback.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Why this matters at Ro's scale</h3>
+        <p>Every course a team builds has to be maintained for as long as it exists. Sending a knowledge or tool problem to training costs build time, takes hundreds of people off the queue to complete it, and leaves the real cause in place. The intake form asks "What goes wrong if people don't learn this?" so the diagnosis starts before anyone builds anything.</p>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site"><div class="wrap"><a href="../">← Back to the portfolio</a></div></footer>
+
+<script>
+const FIXES = ["Training", "Job aid", "Knowledge fix", "Process or tool fix", "Coaching"];
+const REQUESTS = [
+  {
+    from: "Clinical Operations lead",
+    ask: "Advocates keep telling patients the wrong refill cutoff date. Can you retrain everyone?",
+    clue: "Two knowledge base articles give different cutoff dates. One was updated after the policy change last month. The other wasn't.",
+    answer: "Knowledge fix",
+    why: "Advocates are doing exactly what the knowledge base tells them. Retraining hundreds of people while the wrong article is still live guarantees the error comes back. Fix the source, retire the duplicate, add an owner and review date, then send a two-line update."
+  },
+  {
+    from: "Program launch lead",
+    ask: "We launch a new medication program in six weeks. Around 200 advocates and clinicians need to handle patient questions on day one.",
+    clue: "Nobody has done this before. The questions involve new eligibility rules, a new administration method, and new side effect talking points.",
+    answer: "Training",
+    why: "New knowledge and new skills, needed by everyone, on a fixed date. This is what training is for. Build it around the real contacts people will get, add a job aid for the rare steps, and have clinicians sign off on the content before launch."
+  },
+  {
+    from: "Night shift manager",
+    ask: "Escalation accuracy dropped on nights. We need a refresher on the urgent escalation protocol.",
+    clue: "Night staff pass the protocol quiz at the same rate as days. The drop started the week a tool release moved the urgent escalation button into a submenu.",
+    answer: "Process or tool fix",
+    why: "They know the protocol. The tool makes the right action harder at 3 a.m. when the queue is busy. Take the data to Product and Quality. A refresher would cost an hour per person and change nothing."
+  },
+  {
+    from: "Patient Experience lead",
+    ask: "Patient experience scores are low on one team. Everyone needs empathy training.",
+    clue: "Scores across Care Delivery are steady. The dip is three advocates who joined that team recently. Their lead hasn't run call reviews in two months.",
+    answer: "Coaching",
+    why: "Three people with a missing feedback loop is a coaching problem, not an org-wide training need. Restart call reviews with a clear standard and a short coaching guide for the lead, then check scores in 30 days."
+  },
+  {
+    from: "Pharmacy operations lead",
+    ask: "People keep missing steps in the prior authorization handoff. Should we build a course?",
+    clue: "It comes up about three times a month per person. They know the steps when asked, but the seven steps have to happen in a strict order.",
+    answer: "Job aid",
+    why: "A rare task with a strict sequence is what checklists are for. Nobody remembers seven steps they use three times a month. Put the checklist where the work happens, inside the tool or one click from the case."
+  }
+];
+
+let i = 0, right = 0;
+const stage = document.getElementById("stage");
+function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+function render() {
+  document.getElementById("prog").style.width = (i / REQUESTS.length * 100) + "%";
+  stage.replaceChildren();
+  if (i >= REQUESTS.length) return finish();
+  const r = REQUESTS[i];
+  stage.append(el("div", "trail", "Request " + (i + 1) + " of " + REQUESTS.length));
+  const box = el("div", "req");
+  box.append(el("div", "from", "From: " + r.from), el("div", "ask", "“" + r.ask + "”"));
+  const clue = el("div", "clue"); clue.append(el("b", null, "When you dig in: "), document.createTextNode(r.clue));
+  stage.append(box, clue, el("div", "q", "What is the fix?"));
+  const opts = el("div", "opts five");
+  const fb = el("div", "feedback");
+  FIXES.forEach(f => {
+    const b = el("button", "opt", f); b.type = "button";
+    b.onclick = () => {
+      [...opts.children].forEach(x => { x.disabled = true; if (x.textContent === r.answer) x.classList.add("right"); });
+      const ok = f === r.answer;
+      if (ok) right++; else b.classList.add("wrong");
+      fb.replaceChildren(el("div", "verdict " + (ok ? "best" : "miss"), ok ? "Right: " + r.answer : "Not quite. It's " + r.answer.toLowerCase() + "."), el("p", null, r.why));
+      const next = el("button", "btn", i + 1 < REQUESTS.length ? "Next request" : "See results"); next.type = "button";
+      next.onclick = () => { i++; render(); };
+      fb.append(next); fb.classList.add("show");
+    };
+    opts.append(b);
+  });
+  stage.append(opts, fb);
+}
+
+function finish() {
+  stage.append(el("div", "eyebrow", "Queue cleared"));
+  stage.append(el("h2", null, right + " of " + REQUESTS.length + " right"));
+  stage.append(el("p", null, "Only one of the five requests was a training problem. Many requests that arrive as “we need a course” turn out to be a knowledge, tool, or feedback problem."));
+  stage.append(el("p", "muted", "In the CoE, this triage is the first step after intake. It takes 20 minutes with the requester and data from Quality and Operations, and it saves weeks of building the wrong thing."));
+  const row = el("div", "btn-row");
+  const again = el("button", "btn", "Play again"); again.type = "button"; again.onclick = () => { i = 0; right = 0; render(); };
+  const model = el("a", "btn ghost", "See the operating model"); model.href = "operating-model.html";
+  row.append(again, model); stage.append(row);
+}
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Learning CoE Playbook</title>
+<meta name="description" content="An operating model for a Care Delivery Learning Center of Excellence: intake, prioritization, content governance, measurement, launch readiness, team roles, and learning technology.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  .check-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .check-row:last-of-type { border-bottom: 0; }
+  .score { display: flex; gap: 6px; }
+  .score button { width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--bg); color: var(--ink); font: inherit; font-weight: 600; cursor: pointer; }
+  .score button.on { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  #result { margin-top: 18px; }
+  .toc { columns: 2 220px; padding-left: 20px; }
+  @media (max-width: 560px) { .check-row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="../">Sandie Dela Cruz, AuD, OD, MBA</a>
+    <nav>
+      <a href="shift-sim.html">Shift Sim</a>
+      <a href="triage.html">Triage</a>
+      <a href="operating-model.html">Operating model</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="hero" style="padding-bottom:32px">
+  <div class="wrap">
+    <p class="eyebrow">Work sample · Operating model</p>
+    <h1>The Care Delivery Learning CoE playbook</h1>
+    <p class="lede">How requests come in, how they get ranked, how content stays accurate, and how we prove learning changed what people do. It builds on the Learning Ops Starter Kit I'm presenting at DevLearn 2026, scaled up for a clinical team of hundreds.</p>
+    <ol class="toc small">
+      <li><a href="#check">Readiness check</a></li>
+      <li><a href="#intake">Intake</a></li>
+      <li><a href="#priority">Prioritization</a></li>
+      <li><a href="#governance">Content governance</a></li>
+      <li><a href="#measure">Measurement</a></li>
+      <li><a href="#launch">Launch readiness</a></li>
+      <li><a href="#team">Team and roles</a></li>
+      <li><a href="#tech">Technology and AI</a></li>
+    </ol>
+  </div>
+</section>
+
+<section id="check" style="padding-top:0">
+  <div class="wrap">
+    <h2>Start here: score the function</h2>
+    <p class="muted">Adapted from the "Pack Your Wagon" self-check in my DevLearn session. 1 is never, 5 is always. Your lowest line tells you where to start. A tie goes to the earlier line, because the front door gets fixed first.</p>
+    <div class="tool">
+      <div id="checks"></div>
+      <div id="result" class="callout" hidden></div>
+    </div>
+  </div>
+</section>
+
+<section id="intake">
+  <div class="wrap">
+    <h2>1. Intake: one front door</h2>
+    <p>Every request, from a VP or a team lead, goes through the same short form and into one visible log. Nothing lives in someone's inbox.</p>
+    <div class="grid g2">
+      <div class="card">
+        <h3>The form</h3>
+        <ol class="tight">
+          <li>Who is asking, and which team is affected?</li>
+          <li>What did you see people doing, or not doing?</li>
+          <li><b>What goes wrong for patients or the business if this doesn't change?</b></li>
+          <li>How would we know it's fixed? Name a number if you have one.</li>
+          <li>When is it needed, and what is driving that date?</li>
+        </ol>
+      </div>
+      <div class="card">
+        <h3>Why question 3 matters</h3>
+        <p>It turns "we need a course on X" into a problem statement. A request with no answer to question 3 goes back for clarification before anyone builds anything. It is the cheapest filter a learning team has.</p>
+        <p class="muted small">Next step after intake: the <a href="triage.html">triage</a>. Training, job aid, knowledge fix, process or tool fix, or coaching.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="priority">
+  <div class="wrap">
+    <h2>2. Prioritization: a shared score</h2>
+    <p>Agreed with Operations, Clinical, and Quality up front, so the queue is a shared decision and not whoever asked loudest.</p>
+    <div class="table-scroll">
+    <table>
+      <tr><th>Factor</th><th>Weight</th><th>1 (low)</th><th>5 (high)</th></tr>
+      <tr><td>Patient safety risk</td><td>×3</td><td>No clinical exposure</td><td>Linked to a safety event or a red flag being missed</td></tr>
+      <tr><td>Quality and patient experience impact</td><td>×2</td><td>No measurable effect</td><td>Moves a tracked QA or patient experience metric</td></tr>
+      <tr><td>People affected</td><td>×2</td><td>One team</td><td>All of Care Delivery</td></tr>
+      <tr><td>Business date</td><td>×1</td><td>No fixed date</td><td>Launch or regulatory date in under 8 weeks</td></tr>
+      <tr><td>Effort (inverted)</td><td>×1</td><td>Multi-month build</td><td>Under a week</td></tr>
+    </table>
+    </div>
+    <p class="muted small" style="margin-top:12px">Safety sits at triple weight on purpose. A small request with real safety exposure should beat a big one without it. Capacity is planned in a weekly view, and anything new that jumps the queue names what it pushes down.</p>
+  </div>
+</section>
+
+<section id="governance">
+  <div class="wrap">
+    <h2>3. Content governance: accurate, owned, retired on time</h2>
+    <div class="grid g2">
+      <div class="card">
+        <h3>One source of truth</h3>
+        <p>The knowledge base holds the facts. Courses, job aids, and scripts link to the article instead of copying it. When a protocol changes, one article changes, and everything pointing to it is current.</p>
+      </div>
+      <div class="card">
+        <h3>The review plan</h3>
+        <ul class="tight">
+          <li>One job per reviewer: clinical accuracy, compliance, and learner experience (two frontline staff).</li>
+          <li>All feedback in one place.</li>
+          <li>Two rounds, then it ships. Later feedback goes into the next version.</li>
+          <li>One named final approver. For clinical content, that is a clinician.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="table-scroll" style="margin-top:18px">
+    <table>
+      <tr><th>Content tier</th><th>Example</th><th>Review cadence</th><th>Triggered review</th></tr>
+      <tr><td><span class="tag warn">Clinical safety</span></td><td>Red flags, escalation paths, medication talking points</td><td>Every 6 months</td><td>Any label, protocol, or formulary change</td></tr>
+      <tr><td><span class="tag amber">Operational</span></td><td>Refills, shipping, billing, tools</td><td>Every 12 months</td><td>Any policy or tool release</td></tr>
+      <tr><td><span class="tag">Skills</span></td><td>Communication, de-escalation, coaching</td><td>Every 18 months</td><td>QA trend shows drift</td></tr>
+    </table>
+    </div>
+    <p class="muted small" style="margin-top:12px">Every item has an owner and a review date. Anything with no owner or not opened in six months gets reviewed for retirement.</p>
+  </div>
+</section>
+
+<section id="measure">
+  <div class="wrap">
+    <h2>4. Measurement: four rungs</h2>
+    <p>Completion rates show who sat through something, not whether it worked. Each rung has a data source and an owner, and the higher rungs belong to partners, not to L&amp;D alone.</p>
+    <div class="table-scroll">
+    <table>
+      <tr><th>Rung</th><th>Question</th><th>Evidence</th><th>Owner</th><th>When</th></tr>
+      <tr><td>1. Knows it</td><td>Did they learn it?</td><td>Scenario-based checks, not recall quizzes</td><td>Learning CoE</td><td>End of module</td></tr>
+      <tr><td>2. Can do it</td><td>Can they do it in practice?</td><td>Simulation results by behavior (see the <a href="shift-sim.html">Shift Sim</a>)</td><td>Learning CoE</td><td>Before live work</td></tr>
+      <tr><td>3. Does it on shift</td><td>Do they do it with real patients?</td><td>QA scores on the same behaviors, escalation accuracy, lead observations</td><td>Quality and frontline leads</td><td>30 and 90 days</td></tr>
+      <tr><td>4. Moves the outcome</td><td>Did care get better?</td><td>Safety events, repeat contacts, time to proficiency, patient experience</td><td>Operations, Quality, Data</td><td>Quarterly</td></tr>
+    </table>
+    </div>
+    <div class="callout" style="margin-top:18px">
+      <b>The feedback loop.</b> QA misses feed new scenarios. Frontline "I couldn't find it" flags feed the knowledge base. Each launch ends with a four-question lessons-learned review, and one change goes into the playbook. The same behavior tags run through the sim, the QA rubric, and the dashboard, so the rungs can be joined.
+    </div>
+  </div>
+</section>
+
+<section id="launch">
+  <div class="wrap">
+    <h2>5. Launch readiness</h2>
+    <p>For a new medication, program, state, or tool. The goal is a frontline team that is ready on day one, with clinical sign-off on everything they will say.</p>
+    <div class="flow">
+      <div class="step"><b>6 weeks out</b>Scope the change with Product, Clinical, and Ops. Which roles, which contacts, which questions.</div>
+      <div class="step"><b>4 weeks out</b>Knowledge articles drafted. Scenarios written from expected contacts. Clinical review starts.</div>
+      <div class="step"><b>2 weeks out</b>Pilot with a small group of frontline staff. Fix what confuses them.</div>
+      <div class="step"><b>Launch week</b>Training done, job aid live, floor support and a fast lane for questions.</div>
+      <div class="step"><b>30 days after</b>Read QA and contact data. Lessons-learned review. Update content.</div>
+    </div>
+    <p class="muted small">Readiness gate before launch: every article clinically approved, at least 95% of affected staff passed the scenario check, escalation paths tested end to end.</p>
+  </div>
+</section>
+
+<section id="team">
+  <div class="wrap">
+    <h2>6. Team and roles</h2>
+    <p>Training and knowledge management under one roof, because they fail together when they're split.</p>
+    <div class="grid g3">
+      <div class="card"><h3>Learning design</h3><p>Instructional designers who build onboarding, launch, and retraining programs from real contacts and QA data.</p></div>
+      <div class="card"><h3>Knowledge management</h3><p>Editors who own the knowledge base: structure, accuracy, review dates, and search findability.</p></div>
+      <div class="card"><h3>Facilitation and onboarding</h3><p>Trainers who run cohorts and floor support, often promoted from the frontline.</p></div>
+      <div class="card"><h3>Learning ops and analytics</h3><p>Runs intake, capacity, the LMS, and the measurement ladder. The CoE's operating system.</p></div>
+      <div class="card"><h3>Clinical SME network</h3><p>Named clinicians with protected time for review. They approve clinical content and own its accuracy.</p></div>
+      <div class="card"><h3>Frontline champions</h3><p>Experienced advocates who pilot content, flag gaps, and coach peers.</p></div>
+    </div>
+    <div class="table-scroll" style="margin-top:18px">
+    <table>
+      <tr><th>Decision</th><th>Decides</th><th>Consulted</th></tr>
+      <tr><td>What gets built next</td><td>Learning CoE, using the shared score</td><td>Ops, Clinical, Quality</td></tr>
+      <tr><td>Clinical accuracy</td><td>Clinical approver</td><td>Learning design</td></tr>
+      <tr><td>How it is taught</td><td>Learning design</td><td>Frontline champions</td></tr>
+      <tr><td>Whether it worked</td><td>Quality and Ops data</td><td>Learning ops</td></tr>
+    </table>
+    </div>
+  </div>
+</section>
+
+<section id="tech">
+  <div class="wrap">
+    <h2>7. Technology and AI</h2>
+    <div class="grid g2">
+      <div class="card">
+        <h3>Tool scorecard</h3>
+        <p>Every LMS, authoring, knowledge, or analytics tool is scored before purchase:</p>
+        <ul class="tight">
+          <li>Frontline experience: can an advocate find the answer mid-contact in under 30 seconds?</li>
+          <li>Maintainer experience: can one editor update a fact everywhere at once?</li>
+          <li>Data: does it send xAPI or clean exports that join to QA data?</li>
+          <li>Security and compliance: PHI handling, access controls, audit trail.</li>
+          <li>Total cost over three years, implementation time, and exit terms.</li>
+        </ul>
+        <p class="muted small">This is how I led a platform selection at Edwards: one-third lower three-year cost, 4 months to implement instead of 13, and exit rights tied to SLAs.</p>
+      </div>
+      <div class="card">
+        <h3>AI in the learning workflow</h3>
+        <p>Where AI helps a learning team: first drafts of scenarios from de-identified QA patterns, first drafts of article updates when a protocol changes, tagging contacts by topic to spot gaps.</p>
+        <p><b>The guardrails</b>, the same pattern I use for agentic workflows in a regulated function at Edwards:</p>
+        <ul class="tight">
+          <li>Approved knowledge source only.</li>
+          <li>A human review gate. Clinical content gets clinician sign-off before anything is published.</li>
+          <li>No patient data in a tool that isn't approved for it.</li>
+          <li>Each output logged against the source it came from.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <a href="../">← Back to the portfolio</a>
+    <p class="disclaimer">An outside-in design for a portfolio, built without access to Ro's internal data, tools, or org structure. Weights, cadences, and thresholds are starting points to calibrate with Ro's Clinical, Operations, and Quality leaders.</p>
+  </div>
+</footer>
+
+<script>
+const LINES = [
+  { s: "Learning requests reach us through one door, with the problem written down.", go: "#intake", name: "intake" },
+  { s: "Leaders agree on why the top item in the queue is at the top.", go: "#priority", name: "prioritization" },
+  { s: "Every clinical article and course has an owner and a review date.", go: "#governance", name: "content governance" },
+  { s: "We can show whether a program changed behavior on shift, not just completion.", go: "#measure", name: "measurement" },
+  { s: "On launch day, the frontline already knows what to say and where to escalate.", go: "#launch", name: "launch readiness" },
+  { s: "Everyone knows who decides what gets built and who approves clinical accuracy.", go: "#team", name: "team and decision rights" }
+];
+const scores = new Array(LINES.length).fill(0);
+const box = document.getElementById("checks"), out = document.getElementById("result");
+function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+LINES.forEach((l, idx) => {
+  const row = el("div", "check-row");
+  row.append(el("div", null, (idx + 1) + ". " + l.s));
+  const sc = el("div", "score");
+  for (let n = 1; n <= 5; n++) {
+    const b = el("button", null, String(n)); b.type = "button";
+    b.setAttribute("aria-label", "Score " + n + " for line " + (idx + 1));
+    b.onclick = () => { scores[idx] = n; [...sc.children].forEach((x, k) => x.classList.toggle("on", k < n)); update(); };
+    sc.append(b);
+  }
+  row.append(sc); box.append(row);
+});
+function update() {
+  if (scores.some(x => x === 0)) {
+    out.hidden = false;
+    out.textContent = "Scored " + scores.filter(x => x).length + " of " + LINES.length + " lines.";
+    return;
+  }
+  let lo = 0; scores.forEach((v, k) => { if (v < scores[lo]) lo = k; });
+  out.replaceChildren(
+    el("b", null, "Start with " + LINES[lo].name + ". "),
+    document.createTextNode("Line " + (lo + 1) + " scored " + scores[lo] + ". Fix one thing, use it for two weeks, call it a draft. "),
+  );
+  const a = el("a", null, "Jump to it →"); a.href = LINES[lo].go; out.append(a);
+  out.hidden = false;
+}
+</script>
+</body>
+</html>
